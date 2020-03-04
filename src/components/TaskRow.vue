@@ -1,26 +1,47 @@
 <template>
-  <Editable v-model="title" />
+  <div>
+    <input v-model="text" @input="onInput" />
+  </div>
 </template>
 
 <script>
-import Editable from './Editable.vue'
 
 export default {
   name: 'TaskRow',
   props: {
-    task: String
+    initId: {
+      type: Number,
+      required: false
+    }
   },
   data: function() {
     return {
-      title: this.task
+      id: this.initId
     }
   },
-  components: {
-    Editable
+  methods: {
+    onInput: function(e) {
+      if (this.id === undefined) {
+        this.$emit('newTask', e.data)
+      }
+      this.$emit('input', e.data)
+    },
+  },
+  computed: {
+    text: {
+      get() {
+        let task = this.$store.getters.getTaskById(this.id)
+        return typeof task === 'undefined' ? '' : task.text;
+      },
+      set(value) {
+        if (typeof this.id !== 'undefined') {
+          this.$store.commit('mergeIntoTasks', {id: this.id, text: value});
+        }
+      }
+    }
   },
 }
 </script>
 
 <style>
-  
 </style>

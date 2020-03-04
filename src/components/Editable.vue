@@ -1,5 +1,5 @@
 <template>
-  <span contenteditable="true" @input="handleInput">{{ content }}</span>
+  <span contenteditable="true" @input="onInput" >{{ content }}</span>
 </template>
 
 <script>
@@ -13,7 +13,7 @@ export default {
     }
   },
   methods: {
-    handleInput () {
+    onInput () {
       this.$emit('input', this.$el.innerText)
     }
   },
