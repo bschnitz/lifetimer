@@ -7,11 +7,17 @@
 <script>
 import TaskTree from './components/TaskTree.vue'
 
+
 export default {
   data: function() {
     return {
       tasks: this.$store.state.tasks
     }
+  },
+  created() {
+    this.$store.subscribe((mutation, state) => {
+      localStorage.setItem('tasks', JSON.stringify(state.tasks));
+    })
   },
   name: 'App',
   components: {

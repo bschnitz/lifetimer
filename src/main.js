@@ -8,16 +8,7 @@ Vue.config.productionTip = false
 
 const store = new Vuex.Store({
   strict: true,
-  state: {
-    tasks: [
-      { id:1, text:"Softwareentwicklung (Aufgabenmanager)"},
-      { id:2, text:"Lesen (Asimov, Borderlinebuch, Fahrradbuch)"},
-      { id:3, text:"Handyakku testen"},
-      { id:4, text:"Fahrradplanung"},
-      { id:5, text:"Computerspielen"},
-      { id:6, text:"Ringe für die Hochzeit aus Epoxit"},
-    ]
-  },
+  state: {},
   getters: {
     getTaskById: (state) => (id) => {
       return state.tasks.find(task => task.id === id)
@@ -41,15 +32,20 @@ const store = new Vuex.Store({
   },
   mutations: {
     addTask (state, task) {
-      console.log(task)
       state.tasks.push(task);
     },
     mergeIntoTasks(state, task) {
       let index = state.tasks.findIndex(item => item.id == task.id);
       Object.assign(state.tasks[index], task);
+    },
+    initTasks (state, tasks) {
+      state.tasks = tasks;
     }
   }
 });
+
+let tasks = JSON.parse(localStorage.getItem('tasks'));
+store.commit('initTasks', tasks);
 
 new Vue({
   render: h => h(App),

@@ -21,7 +21,6 @@ export default {
   methods: {
     addTask: function(text) {
       this.$store.dispatch('addTask', {text: text}).then(id => {
-        console.log(this.$refs[id][0].$el)
         let newInput = this.$refs[id][0].$el.children[0];
         newInput.focus()
       });
