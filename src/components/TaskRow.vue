@@ -21,7 +21,7 @@ export default {
   methods: {
     onInput (e) {
       if (this.id === undefined) {
-        this.$emit('newTask', e.data)
+        this.$emit('addTask', {text: e.data})
         this.$refs['text'].value = ''
       }
       else if (e.target.value === "") {
@@ -31,6 +31,9 @@ export default {
         this.$emit('changeTask', {id: this.id, text: e.target.value})
       }
     },
+    focus () {
+      this.$refs['text'].focus()
+    }
   },
   computed: {
     id () {
@@ -44,10 +47,10 @@ export default {
     }
   },
   mounted() {
-    this.$emit('newTaskRow', this.id, this.$el)
+    this.$emit('newTaskRow', this.id, this)
   },
   destroyed() {
-    this.$emit('destroyedTaskRow', this.index)
+    this.$emit('destroyed', this.index)
   }
 }
 </script>

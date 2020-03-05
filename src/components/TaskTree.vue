@@ -1,23 +1,23 @@
 <template>
   <ul>
-    <li ref="tasks" v-for="(task, index) in tasks" :key="task.id">
+    <li v-for="(task, index) in tasks" :key="task.id">
       <TaskRow
-      :ref="task.id"
+      :ref=index
       :index=index
       :task=task
       @changeTask='changeTask'
       @removeTask='removeTask'
       @newTaskRow='focusNewTaskRow'
-      @destroyedTaskRow='focusNextAtIndex'
+      @destroyed='focusAfterDestroy'
       />
     </li>
-    <li><TaskRow ref=addTask @newTask='addTask' /></li>
+    <li><TaskRow ref=addTask @addTask='addTask' /></li>
   </ul>
 </template>
 
 <script>
 import TaskRow from './TaskRow.vue'
-import { mapState } from 'vuex'
+import { mapState, mapMutations } from 'vuex'
 
 export default {
   name: 'TaskTree',
@@ -31,29 +31,26 @@ export default {
     })
   },
   methods: {
-    addTask (text) {
-      this.$store.dispatch('addTask', {text: text})
-    },
-    changeTask (task) {
-      this.$store.commit('mergeIntoTasks', task);
-    },
-    removeTask (id) {
-      this.$store.commit('removeTask', id);
-    },
-    focusNewTaskRow (id, elem) {
+    ...mapMutations([
+      'changeTask',
+      'removeTask',
+      'addTask'
+    ]),
+    focusNewTaskRow (id, row) {
       if (id !== undefined) {
-        elem.childNodes[0].focus();
+        row.focus()
       }
     },
-    focusNextAtIndex (index) {
-      let next = this.$refs['tasks'][index]
-      if (next === undefined) {
-        next = this.$refs['addTask'].$el
-      }
-      else {
-        next = next.childNodes[0]
-      }
-      next.childNodes[0].focus()
+    focusAfterDestroy (index) {
+      this.$nextTick(function(){
+        let rowAtIndex = this.$refs[index][0]
+        if (rowAtIndex !== undefined) {
+          rowAtIndex.focus()
+        }
+        else {
+          this.$refs['addTask'].focus()
+        }
+      })
     }
   },
 }

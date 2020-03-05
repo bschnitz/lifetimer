@@ -24,21 +24,15 @@ const store = new Vuex.Store({
       tasks.push({id:this.getters.getNewTaskId(), text: ""})
     }
   },
-  actions: {
-    addTask (context, task) {
-      task.id = context.getters.getNewTaskId();
-      context.commit('addTask', task);
-      return task.id;
-    }
-  },
   mutations: {
     addTask (state, task) {
+      task.id = this.getters.getNewTaskId();
       state.tasks.push(task);
     },
     removeTask (state, id) {
       state.tasks = state.tasks.filter(item => item.id != id)
     },
-    mergeIntoTasks(state, task) {
+    changeTask(state, task) {
       let index = state.tasks.findIndex(item => item.id == task.id)
       Object.assign(state.tasks[index], task)
     },
