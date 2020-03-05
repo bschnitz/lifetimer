@@ -1,17 +1,16 @@
 <template>
   <div>
-    <input type='text' v-model="text" @input="onInput" />
+    <input ref="text" type='text' :value="this.text" @input="onInput" />
     <input type="submit" tabindex="-1" :value="button" />
   </div>
 </template>
 
 <script>
-
 export default {
   name: 'TaskRow',
   props: {
-    initId: {
-      type: Number,
+    task: {
+      type: Object,
       required: false
     },
     index: {
@@ -19,35 +18,26 @@ export default {
       required: false
     }
   },
-  data () {
-    return {
-      id: this.initId
-    }
-  },
   methods: {
     onInput (e) {
       if (this.id === undefined) {
         this.$emit('newTask', e.data)
+        this.$refs['text'].value = ''
       }
       else if (e.target.value === "") {
         this.$emit('removeTask', this.id)
       }
       else {
-        this.$emit('input', e.data)
+        this.$emit('changeTask', {id: this.id, text: e.target.value})
       }
     },
   },
   computed: {
-    text: {
-      get() {
-        let task = this.$store.getters.getTaskById(this.id)
-        return typeof task === 'undefined' ? '' : task.text;
-      },
-      set(value) {
-        if (typeof this.id !== 'undefined') {
-          this.$store.commit('mergeIntoTasks', {id: this.id, text: value});
-        }
-      }
+    id () {
+      return this.task === undefined ? undefined : this.task.id
+    },
+    text () {
+      return this.task === undefined ? '' : this.task.text;
     },
     button () {
       return "+";
@@ -62,5 +52,43 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
+input[type='submit'] {
+  margin-bottom: .5em;
+  border: 2px solid #62E200;
+  border-left: 0;
+  border-radius: 0 .5em .5em 0;
+}
+
+input[type='submit']:focus {
+  outline: none;
+}
+
+input[type='submit']:hover {
+  border: 2px solid #AA00A2;
+  box-shadow: 0 0 10px #AA00A2;
+}
+
+input[type='text'] {
+  flex-grow: 1;
+  font-family: sans-serif;
+  display: block;
+  padding: .5em;
+  margin-bottom: .5em;
+  border: 2px solid #62E200;
+  border-radius: .5em 0 0 .5em;
+}
+
+input[type='text']:focus {
+  outline: none;
+  border: 2px solid #AA00A2;
+  box-shadow: 0 0 10px #AA00A2;
+  background-color: #E1FA71;
+  color: #AA00A2;
+}
+
+div {
+  display: flex;
+  justify-content:  space-between;
+}
 </style>
