@@ -6,45 +6,95 @@ Vue.use(Vuex)
 
 Vue.config.productionTip = false
 
+class TaskTree {
+  constructor(tasks) {
+    this.root = {
+      tasks: tasks
+    };
+    this.maxId = this.getMaxId();
+  }
+
+  getMaxId() {
+    let maxId = -Infinity;
+    for (let task of this.getRecursiveNodeIterator()) {
+      maxId = Math.max(maxId, task.id);
+    }
+    return maxId === -Infinity ? 0 : maxId;
+  }
+
+  getNewTaskId() {
+    return this.maxId++;
+  }
+
+  *getRecursiveNodeIterator(root) {
+    root = root === undefined ? this.root : root
+    for (let node of root.tasks)
+    {
+      yield node;
+      if (Array.isArray(node.tasks)) {
+        yield* this.getRecursiveNodeIterator(node);
+      }
+    }
+  }
+
+  getNodeById(id) {
+    if (id === undefined) {
+      return this.root;
+    }
+
+    for (let node of this.getRecursiveNodeIterator()) {
+      if (node.id == id) {
+        return node;
+      }
+    }
+  }
+
+  getRawData() {
+    return this.root;
+  }
+
+  addTask(task) {
+    let node = this.getNodeById(task.parentId);
+    task.id = this.getNewTaskId();
+    node.tasks = Array.isArray(node.tasks) ? node.tasks : [];
+    node.tasks.push(task);
+  }
+
+  removeTask(id, parentId) {
+    let parent = this.getNodeById(parentId);
+    parent.tasks = parent.tasks.filter(child => child.id != id)
+  }
+
+  changeTask(id, data) {
+    let task = this.getNodeById(id);
+    Object.assign(task, data)
+  }
+}
+
 const store = new Vuex.Store({
   strict: true,
-  state: { tasks: [] },
+  state: { tree: new TaskTree([]) },
   getters: {
-    getTaskById: (state) => (id) => {
-      return state.tasks.find(task => task.id === id)
-    },
-    getNewTaskId: (state) => () => {
-      let ids = state.tasks.map((task) => task.id)
-      ids.push(0)
-      let maxId = Math.max.apply(null, ids)
-      return maxId + 1;
-    },
     getTasks: (state) => () => {
-      let tasks = state.tasks
-      tasks.push({id:this.getters.getNewTaskId(), text: ""})
-    }
+      return state.tree.getRawData().tasks
+    },
   },
   mutations: {
     addTask (state, task) {
-      task.id = this.getters.getNewTaskId();
-      state.tasks.push(task);
+      state.tree.addTask(task);
     },
-    removeTask (state, id) {
-      state.tasks = state.tasks.filter(item => item.id != id)
+    removeTask (state, task) {
+      state.tree.removeTask(task.id, task.parentId);
     },
     changeTask(state, task) {
-      let index = state.tasks.findIndex(item => item.id == task.id)
-      Object.assign(state.tasks[index], task)
+      state.tree.changeTask(task.id, task);
     },
-    initTasks (state, tasks) {
-      state.tasks = tasks;
-    }
   }
 });
 
-let tasks = JSON.parse(localStorage.getItem('tasks'));
+/*let tasks = JSON.parse(localStorage.getItem('tasks'));
 tasks = tasks !== null ? tasks : [];
-store.commit('initTasks', tasks);
+store.commit('initTasks', tasks);*/
 
 new Vue({
   render: h => h(App),

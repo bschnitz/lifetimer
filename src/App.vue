@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <TaskTree/>
+    <TaskTree :tasks=tasks />
   </div>
 </template>
 
@@ -12,7 +12,17 @@ export default {
   name: 'App',
   components: {
     TaskTree
-  }
+  },
+  computed: {
+    tasks() {
+      return this.$store.getters.getTasks();
+    }
+  },
+  created() {
+    /*this.$store.subscribe((mutation, state) => {
+      localStorage.setItem('tasks', JSON.stringify(state.tasks));
+    })*/
+  },
 }
 
 </script>

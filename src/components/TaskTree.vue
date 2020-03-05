@@ -5,6 +5,7 @@
       :ref=index
       :index=index
       :task=task
+      :parentId=parentId
       @changeTask='changeTask'
       @removeTask='removeTask'
       @newTaskRow='focusNewTaskRow'
@@ -17,18 +18,22 @@
 
 <script>
 import TaskRow from './TaskRow.vue'
-import { mapState, mapMutations } from 'vuex'
+import { mapMutations } from 'vuex'
 
 export default {
   name: 'TaskTree',
+  props: {
+    tasks: {
+      type: Array,
+      required: true
+    },
+    parentId: {
+      type: Number,
+      required: false
+    }
+  },
   components: {
     TaskRow
-  },
-  computed: mapState(['tasks']),
-  created() {
-    this.$store.subscribe((mutation, state) => {
-      localStorage.setItem('tasks', JSON.stringify(state.tasks));
-    })
   },
   methods: {
     ...mapMutations([
@@ -62,9 +67,16 @@ ul {
   padding: 0;
   margin: 2em;
 }
+
+ul.subtree {
+  margin: 0;
+  margin-left: 10%;
+}
+
 li {
   margin: 0;
 }
+
 a {
   color: #42b983;
 }

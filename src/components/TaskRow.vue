@@ -1,13 +1,24 @@
 <template>
   <div>
-    <input ref="text" type='text' :value="this.text" @input="onInput" />
-    <input type="submit" tabindex="-1" :value="button" />
+    <div class='row'>
+      <input ref="text" type='text' :value="this.text" @input="onInput" />
+      <input type="submit" tabindex="-1" :value="button" />
+    </div>
+    <TaskTree
+    v-if="this.id !== undefined"
+    :tasks=subtasks
+    :parentId=parentId
+    class='subtree'
+    />
   </div>
 </template>
 
 <script>
 export default {
   name: 'TaskRow',
+  components: {
+    TaskTree: () => import('./TaskTree.vue')
+  },
   props: {
     task: {
       type: Object,
@@ -16,19 +27,28 @@ export default {
     index: {
       type: Number,
       required: false
+    },
+    parentId: {
+      type: Number,
+      required: false
     }
   },
   methods: {
     onInput (e) {
+      let task = {
+        id: this.id,
+        parentId: this.parentId,
+        text: e.target.value
+      }
       if (this.id === undefined) {
-        this.$emit('addTask', {text: e.data})
+        this.$emit('addTask', task)
         this.$refs['text'].value = ''
       }
-      else if (e.target.value === "") {
-        this.$emit('removeTask', this.id)
+      else if (task.text === "") {
+        this.$emit('removeTask', task)
       }
       else {
-        this.$emit('changeTask', {id: this.id, text: e.target.value})
+        this.$emit('changeTask', task)
       }
     },
     focus () {
@@ -41,6 +61,9 @@ export default {
     },
     text () {
       return this.task === undefined ? '' : this.task.text;
+    },
+    subtasks () {
+      return this.task.subtasks !== undefined ? this.task.subtasks : []
     },
     button () {
       return "+";
@@ -90,7 +113,7 @@ input[type='text']:focus {
   color: #AA00A2;
 }
 
-div {
+div.row {
   display: flex;
   justify-content:  space-between;
 }
