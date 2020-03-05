@@ -1,6 +1,7 @@
 <template>
   <div>
-    <input v-model="text" @input="onInput" />
+    <input type='text' v-model="text" @input="onInput" />
+    <input type="submit" tabindex="-1" :value="button" />
   </div>
 </template>
 
@@ -12,19 +13,28 @@ export default {
     initId: {
       type: Number,
       required: false
+    },
+    index: {
+      type: Number,
+      required: false
     }
   },
-  data: function() {
+  data () {
     return {
       id: this.initId
     }
   },
   methods: {
-    onInput: function(e) {
+    onInput (e) {
       if (this.id === undefined) {
         this.$emit('newTask', e.data)
       }
-      this.$emit('input', e.data)
+      else if (e.target.value === "") {
+        this.$emit('removeTask', this.id)
+      }
+      else {
+        this.$emit('input', e.data)
+      }
     },
   },
   computed: {
@@ -38,8 +48,17 @@ export default {
           this.$store.commit('mergeIntoTasks', {id: this.id, text: value});
         }
       }
+    },
+    button () {
+      return "+";
     }
   },
+  mounted() {
+    this.$emit('newTaskRow', this.id, this.$el)
+  },
+  destroyed() {
+    this.$emit('destroyedTaskRow', this.index)
+  }
 }
 </script>
 

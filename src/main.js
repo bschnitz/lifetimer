@@ -8,13 +8,14 @@ Vue.config.productionTip = false
 
 const store = new Vuex.Store({
   strict: true,
-  state: {},
+  state: { tasks: [] },
   getters: {
     getTaskById: (state) => (id) => {
       return state.tasks.find(task => task.id === id)
     },
     getNewTaskId: (state) => () => {
       let ids = state.tasks.map((task) => task.id)
+      ids.push(0)
       let maxId = Math.max.apply(null, ids)
       return maxId + 1;
     },
@@ -34,9 +35,12 @@ const store = new Vuex.Store({
     addTask (state, task) {
       state.tasks.push(task);
     },
+    removeTask (state, id) {
+      state.tasks = state.tasks.filter(item => item.id != id)
+    },
     mergeIntoTasks(state, task) {
-      let index = state.tasks.findIndex(item => item.id == task.id);
-      Object.assign(state.tasks[index], task);
+      let index = state.tasks.findIndex(item => item.id == task.id)
+      Object.assign(state.tasks[index], task)
     },
     initTasks (state, tasks) {
       state.tasks = tasks;
@@ -45,6 +49,7 @@ const store = new Vuex.Store({
 });
 
 let tasks = JSON.parse(localStorage.getItem('tasks'));
+tasks = tasks !== null ? tasks : [];
 store.commit('initTasks', tasks);
 
 new Vue({
