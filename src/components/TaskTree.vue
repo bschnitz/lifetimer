@@ -12,7 +12,7 @@
       @destroyed='focusAfterDestroy'
       />
     </li>
-    <li><TaskRow ref=addTask @addTask='addTask' /></li>
+    <li><TaskRow :parentId=parentId ref=addTask @addTask='addTask' /></li>
   </ul>
 </template>
 

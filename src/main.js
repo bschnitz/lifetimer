@@ -56,7 +56,7 @@ class TaskTree {
   addTask(task) {
     let node = this.getNodeById(task.parentId);
     task.id = this.getNewTaskId();
-    node.tasks = Array.isArray(node.tasks) ? node.tasks : [];
+    task.tasks = []
     node.tasks.push(task);
   }
 

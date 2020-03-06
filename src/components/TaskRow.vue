@@ -6,8 +6,8 @@
     </div>
     <TaskTree
     v-if="this.id !== undefined"
-    :tasks=subtasks
-    :parentId=parentId
+    :tasks=tasks
+    :parentId=this.id
     class='subtree'
     />
   </div>
@@ -62,8 +62,9 @@ export default {
     text () {
       return this.task === undefined ? '' : this.task.text;
     },
-    subtasks () {
-      return this.task.subtasks !== undefined ? this.task.subtasks : []
+    tasks () {
+      console.log(this.task)
+      return this.task.tasks !== undefined ? this.task.tasks : []
     },
     button () {
       return "+";
