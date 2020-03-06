@@ -2,10 +2,19 @@
   <div>
     <div class='row'>
       <input ref="text" type='text' :value="this.text" @input="onInput" />
-      <input type="submit" tabindex="-1" :value="button" />
+      <button
+      v-if="this.id !== undefined"
+      type="submit"
+      @click="showSubtree = !showSubtree"
+      tabindex="-1"
+      :class="[countSubtasks > 0 ? 'with-subtasks' : 'without-subtasks']"
+      >
+      {{countSubtasks}}
+      <div class=arrow :class="[showSubtree ? 'down' : 'right']"></div>
+      </button>
     </div>
     <TaskTree
-    v-if="this.id !== undefined"
+    v-if="showSubtree"
     :tasks=tasks
     :parentId=this.id
     class='subtree'
@@ -31,6 +40,11 @@ export default {
     parentId: {
       type: Number,
       required: false
+    }
+  },
+  data () {
+    return {
+      showSubtree: false
     }
   },
   methods: {
@@ -66,8 +80,11 @@ export default {
       console.log(this.task)
       return this.task.tasks !== undefined ? this.task.tasks : []
     },
-    button () {
-      return "+";
+    countSubtasks () {
+      return this.tasks.length > 0 ? this.tasks.length : "";
+    },
+    arrow () {
+      return this.showSubtree ? "⏷" : "⏵";
     }
   },
   mounted() {
@@ -80,18 +97,48 @@ export default {
 </script>
 
 <style scoped>
-input[type='submit'] {
+.arrow.right {
+  position: absolute;
+  box-shadow: 2px 2px #000;
+  top: .75em;
+  right: .675em;
+  width: .5em;
+  height: .5em;
+  display: block;
+  -moz-transform:rotate(-45deg);
+  -webkit-transform:rotate(-45deg);
+}
+
+.arrow.down {
+  position: absolute;
+  box-shadow: 2px 2px #000;
+  top: .5em;
+  right: .375em;
+  width: .5em;
+  height: .5em;
+  display: block;
+  -moz-transform:rotate(45deg);
+  -webkit-transform:rotate(45deg);
+}
+
+button {
   margin-bottom: .5em;
   border: 2px solid #62E200;
   border-left: 0;
   border-radius: 0 .5em .5em 0;
+  position: relative;
+  padding-right: 1.25em;
 }
 
-input[type='submit']:focus {
+button.without-subtasks {
+  padding-right: .75em;
+}
+
+button:focus {
   outline: none;
 }
 
-input[type='submit']:hover {
+button:hover {
   border: 2px solid #AA00A2;
   box-shadow: 0 0 10px #AA00A2;
 }
@@ -100,6 +147,7 @@ input[type='text'] {
   flex-grow: 1;
   font-family: sans-serif;
   display: block;
+  height: 1em;
   padding: .5em;
   margin-bottom: .5em;
   border: 2px solid #62E200;
