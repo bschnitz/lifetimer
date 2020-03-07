@@ -19,9 +19,10 @@ export default {
     }
   },
   created() {
-    /*this.$store.subscribe((mutation, state) => {
-      localStorage.setItem('tasks', JSON.stringify(state.tasks));
-    })*/
+    this.$store.subscribe((mutation, state) => {
+      let tree = state.tree;
+      localStorage.setItem('tasktree', JSON.stringify(tree.getRawData()));
+    })
   },
 }
 

@@ -77,7 +77,6 @@ export default {
       return this.task === undefined ? '' : this.task.text;
     },
     tasks () {
-      console.log(this.task)
       return this.task.tasks !== undefined ? this.task.tasks : []
     },
     countSubtasks () {

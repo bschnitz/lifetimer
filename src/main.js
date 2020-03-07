@@ -9,9 +9,10 @@ Vue.config.productionTip = false
 class TaskTree {
   constructor(tasks) {
     this.root = {
-      tasks: tasks
+      tasks: tasks,
     };
-    this.maxId = this.getMaxId();
+    let maxId = this.getMaxId();
+    this.root.maxId = maxId;
   }
 
   getMaxId() {
@@ -23,7 +24,7 @@ class TaskTree {
   }
 
   getNewTaskId() {
-    return this.maxId++;
+    return this.root.maxId++;
   }
 
   *getRecursiveNodeIterator(root) {
@@ -53,6 +54,10 @@ class TaskTree {
     return this.root;
   }
 
+  setRawData(data) {
+    this.root = data;
+  }
+
   addTask(task) {
     let node = this.getNodeById(task.parentId);
     task.id = this.getNewTaskId();
@@ -78,6 +83,9 @@ const store = new Vuex.Store({
     getTasks: (state) => () => {
       return state.tree.getRawData().tasks
     },
+    getTaskTree : (state) => () => {
+      return state.tree;
+    },
   },
   mutations: {
     addTask (state, task) {
@@ -89,12 +97,18 @@ const store = new Vuex.Store({
     changeTask(state, task) {
       state.tree.changeTask(task.id, task);
     },
+    setTaskTree(state, tree) {
+      state.tree = tree;
+    }
   }
 });
 
-/*let tasks = JSON.parse(localStorage.getItem('tasks'));
-tasks = tasks !== null ? tasks : [];
-store.commit('initTasks', tasks);*/
+let rawData = JSON.parse(localStorage.getItem('tasktree'));
+let taskTree = new TaskTree([])
+if (rawData !== null) {
+  taskTree.setRawData(rawData)
+}
+store.commit('setTaskTree', taskTree);
 
 new Vue({
   render: h => h(App),
