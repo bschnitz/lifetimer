@@ -1,6 +1,9 @@
 <template>
   <div id="app">
-    <Node :node=rootData />
+    <button id="backup" tabindex='-1' @click="backupTasks">
+      Backup all Tasks
+    </button>
+    <Node class="root" :node=rootData />
   </div>
 </template>
 
@@ -24,12 +27,32 @@ export default {
       localStorage.setItem('tasktree', JSON.stringify(tree.getRawData()));
     })
   },
+  methods: {
+    backupTasks () {
+      let FileSaver = require('file-saver');
+      let json = JSON.stringify(this.rootData)
+      let blob = new Blob([json], {type: "text/plain;charset=utf-8"});
+      FileSaver.saveAs(blob, "task-backup.json");
+    }
+  }
 }
 
 </script>
 
-<style>
+<style scoped>
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
+}
+
+button#backup {
+  margin-top: 2em;
+  margin-left: 1em;
+  border: 2px solid #62E200;
+  border-radius: .5em;
+  padding: .4em;
+}
+
+.root {
+  margin-left: 1em;
 }
 </style>
