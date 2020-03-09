@@ -7,6 +7,8 @@
         :value="this.text"
         @input="onInput"
         @focus="onFocus"
+        v-shortkey="{focusNext: ['ctrl', 'j'], focusPrevious: ['ctrl', 'k']}"
+        @shortkey="handleShortkey"
       />
       <button
       v-if="this.id !== undefined"
@@ -81,6 +83,19 @@ export default {
     },
     focus () {
       this.$refs['text'].focus()
+    },
+    getInputElement () {
+      return this.$refs['text'];
+    },
+    handleShortkey (event) {
+      switch (event.srcKey) {
+        case 'focusNext':
+          this.root.focusNextTaskRow();
+          break;
+        case 'focusPrevious':
+          this.root.focusPreviousTaskRow();
+          break;
+      }
     }
   },
   computed: {

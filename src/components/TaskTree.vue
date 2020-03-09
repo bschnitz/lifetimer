@@ -76,6 +76,32 @@ export default {
     saveFocusedTaskRow (taskRow) {
       this.focusedTaskRow = taskRow;
     },
+    focusNextTaskRow () {
+      let inputs = document.getElementsByTagName("input");
+      let focusedInput = this.focusedTaskRow.getInputElement();
+
+      for (let i = 0; i < inputs.length; i++) {
+        if (inputs[i] === focusedInput) {
+          if (inputs[i+1] !== undefined) {
+            inputs[i+1].focus();
+            return;
+          }
+        }
+      }
+    },
+    focusPreviousTaskRow () {
+      let inputs = document.getElementsByTagName("input");
+      let focusedInput = this.focusedTaskRow.getInputElement();
+
+      for (let i = 0; i < inputs.length; i++) {
+        if (inputs[i] === focusedInput) {
+          if (inputs[i-1] !== undefined) {
+            inputs[i-1].focus();
+            return;
+          }
+        }
+      }
+    },
   },
   computed: {
     isRoot () {
