@@ -82,8 +82,8 @@ const store = new Vuex.Store({
   strict: true,
   state: { tree: new TaskTree([]) },
   getters: {
-    getTasks: (state) => () => {
-      return state.tree.getRawData().tasks
+    getRootNodeRawData: (state) => () => {
+      return state.tree.getRawData()
     },
     getTaskTree : (state) => () => {
       return state.tree;

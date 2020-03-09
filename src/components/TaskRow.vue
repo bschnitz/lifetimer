@@ -13,72 +13,56 @@
       <button
       v-if="this.id !== undefined"
       type="submit"
-      @click="showSubtree = !showSubtree"
+      @click="this.$parent.toggleShowSubtree"
       tabindex="-1"
       :class="[countSubtasks > 0 ? 'with-subtasks' : 'without-subtasks']"
       >
       {{countSubtasks}}
-      <div class=arrow :class="[showSubtree ? 'down' : 'right']"></div>
+      <div class=arrow :class="arrowType"></div>
       </button>
     </div>
-    <TaskTree
-    v-if="showSubtree"
-    :tasks=tasks
-    :parentId=this.id
-    :rootTree=root
-    class='subtree'
-    />
   </div>
 </template>
 
 <script>
+import { mapMutations } from 'vuex'
+
 export default {
   name: 'TaskRow',
-  components: {
-    TaskTree: () => import('./TaskTree.vue')
-  },
   props: {
     task: {
       type: Object,
       required: false
     },
-    index: {
-      type: Number,
-      required: false
-    },
     parentId: {
       type: Number,
-      required: false
-    },
-    root: {
-      type: Object,
-      required: true
-    }
-  },
-  data () {
-    return {
-      showSubtree: false
+      required: false // childs of root node have no parentId
     }
   },
   methods: {
+    ...mapMutations([
+      'changeTask',
+      'removeTask',
+      'addTask'
+    ]),
     onFocus () {
-      this.root.saveFocusedTaskRow(this);
+      this.$parent.root.saveFocusedTaskRow(this);
     },
     onInput (e) {
       let task = {
-        id: this.id,
+        id: this.task === undefined ? undefined : this.task.id,
         parentId: this.parentId,
         text: e.target.value
       }
       if (this.id === undefined) {
-        this.$emit('addTask', task)
+        this.addTask(task)
         this.$refs['text'].value = ''
       }
       else if (task.text === "") {
-        this.$emit('removeTask', task)
+        this.removeTask(task);
       }
       else {
-        this.$emit('changeTask', task)
+        this.changeTask(task);
       }
     },
     focus () {
@@ -90,10 +74,10 @@ export default {
     handleShortkey (event) {
       switch (event.srcKey) {
         case 'focusNext':
-          this.root.focusNextTaskRow();
+          this.$parent.root.focusNextTaskRow();
           break;
         case 'focusPrevious':
-          this.root.focusPreviousTaskRow();
+          this.$parent.root.focusPreviousTaskRow();
           break;
       }
     }
@@ -111,16 +95,13 @@ export default {
     countSubtasks () {
       return this.tasks.length > 0 ? this.tasks.length : "";
     },
-    arrow () {
-      return this.showSubtree ? "⏷" : "⏵";
-    }
+    arrowType () {
+      return this.$parent.showSubtree ? 'down' : 'right';
+    },
   },
   mounted() {
-    this.$emit('newTaskRow', this.id, this)
+    this.focus()
   },
-  destroyed() {
-    this.$emit('destroyed', this.index)
-  }
 }
 </script>
 
