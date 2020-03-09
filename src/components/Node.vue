@@ -1,7 +1,7 @@
 <template>
   <div>
-    <TaskRow ref=task v-if="!this.isRoot" :task=node :parentId="$parent.id"/>
-    <ul v-if="this.isRoot || this.showSubtree">
+    <TaskRow ref=task v-if="!this.isRoot()" :task=node :parentId="$parent.id"/>
+    <ul v-if="this.showSubtree" :class="{subtree: !this.isRoot()}">
       <li v-for="(task, index) in node.tasks" :key="task.id">
         <Node :node=task :index=index :ref=index />
       </li>
@@ -31,12 +31,28 @@ export default {
   data () {
     return {
       focusedTaskRow: undefined,
-      showSubtree: false
+      showSubtree: this.isRoot()
     }
   },
   methods: {
-    focus () {
-      this.$refs['task'].focus()
+    isRoot () {
+      return this.$parent.$options.name !== this.$options.name;
+    },
+    focus (index) {
+      if (index !== undefined && this.showSubtree) {
+        this.focusAtSubtree(index)
+      }
+      else {
+        this.$refs['task'].focus()
+      }
+    },
+    focusAtSubtree (index) {
+      if (index < this.node.tasks.length) {
+        this.$refs[index][0].focus()
+      }
+      else {
+        this.$refs['addTask'].focus()
+      }
     },
     toggleShowSubtree () {
       this.showSubtree = !this.showSubtree
@@ -77,11 +93,8 @@ export default {
     },
   },
   computed: {
-    isRoot () {
-      return this.$parent.$options.name !== this.$options.name;
-    },
     root () {
-      return this.isRoot ? this : this.$parent.root;
+      return this.isRoot() ? this : this.$parent.root;
     },
     id () {
       return this.node.id;
@@ -89,12 +102,7 @@ export default {
   },
   destroyed () {
     this.$nextTick(function(){
-      if (this.index < this.$parent.node.tasks.length) {
-        this.$parent.$refs[this.index][0].focus()
-      }
-      else {
-        this.$parent.$refs['addTask'].focus()
-      }
+      this.$parent.focus(this.index);
     })
   }
 }

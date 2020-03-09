@@ -18,14 +18,9 @@
       :class="[countSubtasks > 0 ? 'with-subtasks' : 'without-subtasks']"
       >
       {{countSubtasks}}
-      <div class=arrow :class="[showSubtree ? 'down' : 'right']"></div>
+      <div class=arrow :class="arrowType"></div>
       </button>
     </div>
-    <TaskTree
-    v-if="showSubtree"
-    :tasks=tasks
-    class='subtree'
-    />
   </div>
 </template>
 
@@ -34,9 +29,6 @@ import { mapMutations } from 'vuex'
 
 export default {
   name: 'TaskRow',
-  components: {
-    TaskTree: () => import('./TaskTree.vue')
-  },
   props: {
     task: {
       type: Object,
@@ -45,11 +37,6 @@ export default {
     parentId: {
       type: Number,
       required: false // childs of root node have no parentId
-    }
-  },
-  data () {
-    return {
-      showSubtree: false
     }
   },
   methods: {
@@ -108,8 +95,8 @@ export default {
     countSubtasks () {
       return this.tasks.length > 0 ? this.tasks.length : "";
     },
-    arrow () {
-      return this.showSubtree ? "⏷" : "⏵";
+    arrowType () {
+      return this.$parent.showSubtree ? 'down' : 'right';
     },
   },
   mounted() {
