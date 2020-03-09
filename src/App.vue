@@ -1,21 +1,21 @@
 <template>
   <div id="app">
-    <TaskTree :tasks=tasks />
+    <Node :node=rootData />
   </div>
 </template>
 
 <script>
-import TaskTree from './components/TaskTree.vue'
+import Node from './components/Node.vue'
 
 
 export default {
   name: 'App',
   components: {
-    TaskTree
+    Node
   },
   computed: {
-    tasks() {
-      return this.$store.getters.getTasks();
+    rootData() {
+      return this.$store.getters.getRootNodeRawData();
     }
   },
   created() {
