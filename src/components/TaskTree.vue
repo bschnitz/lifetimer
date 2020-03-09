@@ -2,17 +2,24 @@
   <ul>
     <li v-for="(task, index) in tasks" :key="task.id">
       <TaskRow
-      :ref=index
-      :index=index
-      :task=task
-      :parentId=parentId
-      @changeTask='changeTask'
-      @removeTask='removeTask'
-      @newTaskRow='focusNewTaskRow'
-      @destroyed='focusAfterDestroy'
+        :ref=index
+        :index=index
+        :task=task
+        :root=root
+        :parentId=parentId
+        @focusedTaskRow='saveFocusedTaskRow'
+        @changeTask='changeTask'
+        @removeTask='removeTask'
+        @newTaskRow='focusNewTaskRow'
+        @destroyed='focusAfterDestroy'
       />
     </li>
-    <li><TaskRow :parentId=parentId ref=addTask @addTask='addTask' /></li>
+    <li><TaskRow
+      :root=root
+      :parentId=parentId
+      ref=addTask
+      @addTask='addTask'
+    /></li>
   </ul>
 </template>
 
@@ -30,10 +37,19 @@ export default {
     parentId: {
       type: Number,
       required: false
+    },
+    rootTree: {
+      type: Object,
+      required: false
     }
   },
   components: {
     TaskRow
+  },
+  data () {
+    return {
+      focusedTaskRow: undefined
+    }
   },
   methods: {
     ...mapMutations([
@@ -56,6 +72,43 @@ export default {
           this.$refs['addTask'].focus()
         }
       })
+    },
+    saveFocusedTaskRow (taskRow) {
+      this.focusedTaskRow = taskRow;
+    },
+    focusNextTaskRow () {
+      let inputs = document.getElementsByTagName("input");
+      let focusedInput = this.focusedTaskRow.getInputElement();
+
+      for (let i = 0; i < inputs.length; i++) {
+        if (inputs[i] === focusedInput) {
+          if (inputs[i+1] !== undefined) {
+            inputs[i+1].focus();
+            return;
+          }
+        }
+      }
+    },
+    focusPreviousTaskRow () {
+      let inputs = document.getElementsByTagName("input");
+      let focusedInput = this.focusedTaskRow.getInputElement();
+
+      for (let i = 0; i < inputs.length; i++) {
+        if (inputs[i] === focusedInput) {
+          if (inputs[i-1] !== undefined) {
+            inputs[i-1].focus();
+            return;
+          }
+        }
+      }
+    },
+  },
+  computed: {
+    isRoot () {
+      return this.parentId === undefined;
+    },
+    root () {
+      return this.rootTree === undefined ? this : this.rootTree;
     }
   },
 }

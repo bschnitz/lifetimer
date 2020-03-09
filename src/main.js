@@ -1,8 +1,10 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import App from './App.vue'
+import Shortkey from 'vue-shortkey'
 
 Vue.use(Vuex)
+Vue.use(Shortkey)
 
 Vue.config.productionTip = false
 

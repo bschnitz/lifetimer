@@ -1,7 +1,15 @@
 <template>
   <div>
     <div class='row'>
-      <input ref="text" type='text' :value="this.text" @input="onInput" />
+      <input
+        ref="text"
+        type='text'
+        :value="this.text"
+        @input="onInput"
+        @focus="onFocus"
+        v-shortkey="{focusNext: ['ctrl', 'j'], focusPrevious: ['ctrl', 'k']}"
+        @shortkey="handleShortkey"
+      />
       <button
       v-if="this.id !== undefined"
       type="submit"
@@ -17,6 +25,7 @@
     v-if="showSubtree"
     :tasks=tasks
     :parentId=this.id
+    :rootTree=root
     class='subtree'
     />
   </div>
@@ -40,6 +49,10 @@ export default {
     parentId: {
       type: Number,
       required: false
+    },
+    root: {
+      type: Object,
+      required: true
     }
   },
   data () {
@@ -48,6 +61,9 @@ export default {
     }
   },
   methods: {
+    onFocus () {
+      this.root.saveFocusedTaskRow(this);
+    },
     onInput (e) {
       let task = {
         id: this.id,
@@ -67,6 +83,19 @@ export default {
     },
     focus () {
       this.$refs['text'].focus()
+    },
+    getInputElement () {
+      return this.$refs['text'];
+    },
+    handleShortkey (event) {
+      switch (event.srcKey) {
+        case 'focusNext':
+          this.root.focusNextTaskRow();
+          break;
+        case 'focusPrevious':
+          this.root.focusPreviousTaskRow();
+          break;
+      }
     }
   },
   computed: {
