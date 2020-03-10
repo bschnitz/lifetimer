@@ -1,24 +1,18 @@
 <template>
   <div>
-    <div class='row'>
+    <div class='row' :class="rowClass">
       <input
         ref="text"
         type='text'
-        :value="this.text"
+        :value="this.task.text"
         @input="onInput"
         @focus="onFocus"
-        v-shortkey="{focusNext: ['ctrl', 'j'], focusPrevious: ['ctrl', 'k']}"
+        v-shortkey="getShortkeys()"
         @shortkey="handleShortkey"
-      />
-      <button
-      v-if="this.id !== undefined"
-      type="submit"
-      @click="this.$parent.toggleShowSubtree"
-      tabindex="-1"
-      :class="[countSubtasks > 0 ? 'with-subtasks' : 'without-subtasks']"
-      >
-      {{countSubtasks}}
-      <div class=arrow :class="arrowType"></div>
+        />
+      <button type="submit" @click="showSubtree">
+        {{countSubtasks}}
+        <div class=arrow :class="arrowType"></div>
       </button>
     </div>
   </div>
@@ -32,7 +26,8 @@ export default {
   props: {
     task: {
       type: Object,
-      required: false
+      required: false,
+      default () {return {id: undefined, tasks: [], text: ""};}
     },
     parentId: {
       type: Number,
@@ -40,6 +35,14 @@ export default {
     }
   },
   methods: {
+    getShortkeys () {
+      return {
+        focusNext:     ['ctrl', 'j'],
+        focusPrevious: ['ctrl', 'k'],
+        unfoldSubtree: ['ctrl', 'l'],
+        foldSubtree:   ['ctrl', 'h']
+      };
+    },
     ...mapMutations([
       'changeTask',
       'removeTask',
@@ -50,11 +53,11 @@ export default {
     },
     onInput (e) {
       let task = {
-        id: this.task === undefined ? undefined : this.task.id,
+        id: this.task.id,
         parentId: this.parentId,
         text: e.target.value
       }
-      if (this.id === undefined) {
+      if (this.task.id === undefined) {
         this.addTask(task)
         this.$refs['text'].value = ''
       }
@@ -72,32 +75,57 @@ export default {
       return this.$refs['text'];
     },
     handleShortkey (event) {
+      // the shortkey works globally, but is bound to an arbitrary TaskRow. This
+      // is why the focused TaskRow must be determined and used
       switch (event.srcKey) {
         case 'focusNext':
-          this.$parent.root.focusNextTaskRow();
+          this.root.focusNextTaskRow();
           break;
         case 'focusPrevious':
-          this.$parent.root.focusPreviousTaskRow();
+          this.root.focusPreviousTaskRow();
           break;
+        case 'unfoldSubtree':
+          this.root.getFocusedTaskRow().showSubtree()
+          break;
+        case 'foldSubtree':
+          this.root.getFocusedTaskRow().hideSubtree()
+          break;
+      }
+    },
+    showSubtree () {
+      if (this.task.id !== undefined) {
+        this.$parent.toggleShowSubtree()
+      }
+    },
+    hideSubtree () {
+      if (this.$parent === this.root) {
+        return;
+      }
+
+      if (this.$parent.showSubtree) {
+        this.$parent.toggleShowSubtree()
+      }
+      else if (this.$parent.$parent !== this.root) {
+        this.$parent.$parent.toggleShowSubtree()
       }
     }
   },
   computed: {
-    id () {
-      return this.task === undefined ? undefined : this.task.id
-    },
-    text () {
-      return this.task === undefined ? '' : this.task.text;
-    },
-    tasks () {
-      return this.task.tasks !== undefined ? this.task.tasks : []
+    root () {
+      return this.$parent.root;
     },
     countSubtasks () {
-      return this.tasks.length > 0 ? this.tasks.length : "";
+      return this.task.tasks.length > 0 ? this.task.tasks.length : "";
     },
     arrowType () {
       return this.$parent.showSubtree ? 'down' : 'right';
     },
+    rowClass () {
+      return {
+        'without-subtasks': this.task.tasks.length === 0,
+        'without-task':     this.task.id === undefined
+      }
+    }
   },
   mounted() {
     this.focus()
@@ -139,8 +167,12 @@ button {
   padding-right: 1.25em;
 }
 
-button.without-subtasks {
+.row.without-subtasks button {
   padding-right: .75em;
+}
+
+.row.without-task button {
+  display: none;
 }
 
 button:focus {
@@ -152,7 +184,7 @@ button:hover {
   box-shadow: 0 0 10px #AA00A2;
 }
 
-input[type='text'] {
+input {
   flex-grow: 1;
   font-family: sans-serif;
   display: block;
@@ -163,12 +195,16 @@ input[type='text'] {
   border-radius: .5em 0 0 .5em;
 }
 
-input[type='text']:focus {
+input:focus {
   outline: none;
   border: 2px solid #AA00A2;
   box-shadow: 0 0 10px #AA00A2;
   background-color: #E1FA71;
   color: #AA00A2;
+}
+
+.row.without-task input {
+  border-radius: .5em;
 }
 
 div.row {

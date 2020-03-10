@@ -68,8 +68,11 @@ class TaskTree {
   }
 
   removeTask(id, parentId) {
-    let parent = this.getNodeById(parentId);
-    parent.tasks = parent.tasks.filter(child => child.id != id)
+    let task = this.getNodeById(id)
+    if (!Array.isArray(task.tasks) || task.tasks.length === 0) {
+      let parent = this.getNodeById(parentId);
+      parent.tasks = parent.tasks.filter(child => child.id != id)
+    }
   }
 
   changeTask(id, data) {

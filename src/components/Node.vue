@@ -56,6 +56,11 @@ export default {
     },
     toggleShowSubtree () {
       this.showSubtree = !this.showSubtree
+      if (!this.showSubtree) {
+        this.$nextTick(function(){
+          this.$parent.focus(this.index);
+        })
+      }
     },
     focusNewTaskRow (id, row) {
       if (id !== undefined) {
@@ -64,6 +69,9 @@ export default {
     },
     saveFocusedTaskRow (taskRow) {
       this.focusedTaskRow = taskRow;
+    },
+    getFocusedTaskRow () {
+      return this.root.focusedTaskRow
     },
     focusNextTaskRow () {
       let inputs = document.getElementsByTagName("input");
@@ -116,7 +124,7 @@ ul {
 
 ul.subtree {
   margin: 0;
-  margin-left: 10%;
+  margin-left: 5%;
 }
 
 li {
