@@ -63,6 +63,7 @@ class TaskTree {
   addTask(task) {
     let node = this.getNodeById(task.parentId);
     task.id = this.getNewTaskId();
+    task.completed = false;
     task.tasks = []
     node.tasks.push(task);
   }
@@ -78,6 +79,11 @@ class TaskTree {
   changeTask(id, data) {
     let task = this.getNodeById(id);
     Object.assign(task, data)
+  }
+
+  toggleCompleteTask(id) {
+    let task = this.getNodeById(id);
+    task.completed = !task.completed;
   }
 }
 
@@ -104,6 +110,9 @@ const store = new Vuex.Store({
     },
     setTaskTree(state, tree) {
       state.tree = tree;
+    },
+    toggleCompleteTask(state, id) {
+      state.tree.toggleCompleteTask(id)
     }
   }
 });

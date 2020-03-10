@@ -1,6 +1,9 @@
 <template>
   <div>
     <div class='row' :class="rowClass">
+      <div class='status'>
+          ✔
+      </div>
       <input
         ref="text"
         type='text'
@@ -27,7 +30,12 @@ export default {
     task: {
       type: Object,
       required: false,
-      default () {return {id: undefined, tasks: [], text: ""};}
+      default () {return {
+        id:        undefined,
+        tasks:     [],
+        text:      "",
+        completed: false
+      };}
     },
     parentId: {
       type: Number,
@@ -40,16 +48,18 @@ export default {
         focusNext:     ['ctrl', 'j'],
         focusPrevious: ['ctrl', 'k'],
         unfoldSubtree: ['ctrl', 'l'],
-        foldSubtree:   ['ctrl', 'h']
+        foldSubtree:   ['ctrl', 'h'],
+        toggleCompleteTask:  ['enter'],
       };
     },
     ...mapMutations([
       'changeTask',
       'removeTask',
-      'addTask'
+      'addTask',
+      'toggleCompleteTask',
     ]),
     onFocus () {
-      this.$parent.root.saveFocusedTaskRow(this);
+      this.root.saveFocusedTaskRow(this);
     },
     onInput (e) {
       let task = {
@@ -77,6 +87,7 @@ export default {
     handleShortkey (event) {
       // the shortkey works globally, but is bound to an arbitrary TaskRow. This
       // is why the focused TaskRow must be determined and used
+      let taskRow = this.root.getFocusedTaskRow();
       switch (event.srcKey) {
         case 'focusNext':
           this.root.focusNextTaskRow();
@@ -85,10 +96,13 @@ export default {
           this.root.focusPreviousTaskRow();
           break;
         case 'unfoldSubtree':
-          this.root.getFocusedTaskRow().showSubtree()
+          taskRow.showSubtree()
           break;
         case 'foldSubtree':
-          this.root.getFocusedTaskRow().hideSubtree()
+          taskRow.hideSubtree()
+          break;
+        case 'toggleCompleteTask':
+          taskRow.toggleCompleteTask(taskRow.task.id)
           break;
       }
     },
@@ -108,7 +122,7 @@ export default {
       else if (this.$parent.$parent !== this.root) {
         this.$parent.$parent.toggleShowSubtree()
       }
-    }
+    },
   },
   computed: {
     root () {
@@ -123,7 +137,8 @@ export default {
     rowClass () {
       return {
         'without-subtasks': this.task.tasks.length === 0,
-        'without-task':     this.task.id === undefined
+        'without-task':     this.task.id === undefined,
+        'completed':        this.task.completed === true
       }
     }
   },
@@ -134,6 +149,21 @@ export default {
 </script>
 
 <style scoped>
+div.status {
+  border-radius: .5em 0 0 .5em;
+  padding-left: .5em;
+  padding-right: .5em;
+  position: relative;
+  background-color: #E1FA71;
+  display: none;
+}
+
+div.completed div.status {
+  display: flex;
+  align-items: center;
+}
+
+
 .arrow.right {
   position: absolute;
   box-shadow: 2px 2px #000;
@@ -159,9 +189,7 @@ export default {
 }
 
 button {
-  margin-bottom: .5em;
-  border: 2px solid #62E200;
-  border-left: 0;
+  border: 0;
   border-radius: 0 .5em .5em 0;
   position: relative;
   padding-right: 1.25em;
@@ -180,8 +208,7 @@ button:focus {
 }
 
 button:hover {
-  border: 2px solid #AA00A2;
-  box-shadow: 0 0 10px #AA00A2;
+  background-color: #E1FA71;
 }
 
 input {
@@ -190,17 +217,17 @@ input {
   display: block;
   height: 1em;
   padding: .5em;
-  margin-bottom: .5em;
-  border: 2px solid #62E200;
+  border: 0;
   border-radius: .5em 0 0 .5em;
+}
+
+div.completed input {
+  border-radius: 0;
 }
 
 input:focus {
   outline: none;
-  border: 2px solid #AA00A2;
-  box-shadow: 0 0 10px #AA00A2;
   background-color: #E1FA71;
-  color: #AA00A2;
 }
 
 .row.without-task input {
@@ -209,6 +236,16 @@ input:focus {
 
 div.row {
   display: flex;
+  align-items: stretch;
   justify-content:  space-between;
+  border: 2px solid #62E200;
+  border-radius: .5em;
+  margin-bottom: .5em;
+}
+
+div.row:focus-within {
+  border: 2px solid #AA00A2;
+  box-shadow: 0 0 10px #AA00A2;
+  color: #AA00A2;
 }
 </style>
