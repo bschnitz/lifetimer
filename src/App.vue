@@ -29,7 +29,8 @@ export default {
   methods: {
     backupTasks () {
       let FileSaver = require('file-saver');
-      let json = JSON.stringify(this.rootData)
+      let tree = this.$store.state.tree;
+      let json = JSON.stringify(tree.getRawDataCopy())
       let blob = new Blob([json], {type: "text/plain;charset=utf-8"});
       FileSaver.saveAs(blob, "task-backup.json");
     }
