@@ -1,11 +1,11 @@
 <template>
   <div>
-    <TaskRow ref=task v-if="!this.isRoot()" :task=node :parentId="$parent.id"/>
+    <TaskRow ref=task v-if="!this.isRoot()" :node=node />
     <ul v-if="this.showSubtree" :class="{subtree: !this.isRoot()}">
-      <li v-for="(task, index) in node.tasks" :key="task.id">
-        <Node :node=task :index=index :ref=index />
+      <li v-for="(child, index) in node.getChildNodes()" :key="child.getId()">
+        <Node :node=child :index=index :ref=index />
       </li>
-      <li><TaskRow :parentId=node.id ref=addTask /></li>
+      <li><TaskRow :parent=node ref=addTask /></li>
     </ul>
   </div>
 </template>
@@ -16,8 +16,8 @@ import TaskRow from './TaskRow.vue'
 export default {
   name: 'Node',
   props: {
-    node: { // is a task, if this Node is not the root node
-      type: Object,
+    node: {
+      type: Object, // TaskNode
       required: true
     },
     index: {
@@ -47,7 +47,7 @@ export default {
       }
     },
     focusAtSubtree (index) {
-      if (index < this.node.tasks.length) {
+      if (index < this.node.countChilds()) {
         this.$refs[index][0].focus()
       }
       else {
@@ -105,7 +105,7 @@ export default {
       return this.isRoot() ? this : this.$parent.root;
     },
     id () {
-      return this.node.id;
+      return this.node.getId();
     }
   },
   destroyed () {

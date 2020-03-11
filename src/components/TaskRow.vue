@@ -7,7 +7,7 @@
       <input
         ref="text"
         type='text'
-        :value="this.task.text"
+        :value="this.node.getText()"
         @input="onInput"
         @focus="onFocus"
         v-shortkey="getShortkeys()"
@@ -23,23 +23,20 @@
 
 <script>
 import { mapMutations } from 'vuex'
+import { TaskNode, TaskStatusEnum } from '../js/tasktree.js'
 
 export default {
   name: 'TaskRow',
   props: {
-    task: {
-      type: Object,
-      required: false,
-      default () {return {
-        id:        undefined,
-        tasks:     [],
-        text:      "",
-        completed: false
-      };}
+    node: {
+      type: TaskNode,
+      required: false, // rows for adding tasks have no TaskNode
+      default () {return new TaskNode();}
     },
-    parentId: {
-      type: Number,
-      required: false // childs of root node have no parentId
+    parent: {
+      type: TaskNode,
+      required: false,
+      default () { return this.node.getParent(); }
     }
   },
   methods: {
@@ -62,20 +59,17 @@ export default {
       this.root.saveFocusedTaskRow(this);
     },
     onInput (e) {
-      let task = {
-        id: this.task.id,
-        parentId: this.parentId,
-        text: e.target.value
-      }
-      if (this.task.id === undefined) {
-        this.addTask(task)
+      let text = e.target.value
+
+      if (!this.node.hasId()) {
+        this.addTask({parent: this.parent, data: {text: text}})
         this.$refs['text'].value = ''
       }
-      else if (task.text === "") {
-        this.removeTask(task);
+      else if (text === "") {
+        this.removeTask(this.node);
       }
       else {
-        this.changeTask(task);
+        this.changeTask({node: this.node, data: {text: text}});
       }
     },
     focus () {
@@ -107,7 +101,7 @@ export default {
       }
     },
     showSubtree () {
-      if (this.task.id !== undefined) {
+      if (this.node.hasId()) {
         this.$parent.toggleShowSubtree()
       }
     },
@@ -129,16 +123,18 @@ export default {
       return this.$parent.root;
     },
     countSubtasks () {
-      return this.task.tasks.length > 0 ? this.task.tasks.length : "";
+      return this.node.hasChilds() ? this.node.countChilds() : "";
     },
     arrowType () {
       return this.$parent.showSubtree ? 'down' : 'right';
     },
     rowClass () {
       return {
-        'without-subtasks': this.task.tasks.length === 0,
-        'without-task':     this.task.id === undefined,
-        'completed':        this.task.completed === true
+        'without-task':     this.node.getId()     === null,
+        'without-subtasks': this.node.hasChilds() === false,
+        'open':             this.node.getStatus() === TaskStatusEnum.open,
+        'completed':        this.node.getStatus() === TaskStatusEnum.completed,
+        'rejected':         this.node.getStatus() === TaskStatusEnum.rejected,
       }
     }
   },

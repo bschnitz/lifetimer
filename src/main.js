@@ -2,127 +2,42 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import App from './App.vue'
 import Shortkey from 'vue-shortkey'
+import { TaskTree } from './js/tasktree.js'
 
 Vue.use(Vuex)
 Vue.use(Shortkey)
 
 Vue.config.productionTip = false
 
-class TaskTree {
-  constructor(tasks) {
-    this.root = {
-      tasks: tasks,
-    };
-    let maxId = this.getMaxId();
-    this.root.maxId = maxId;
-  }
-
-  getMaxId() {
-    let maxId = -Infinity;
-    for (let task of this.getRecursiveNodeIterator()) {
-      maxId = Math.max(maxId, task.id);
-    }
-    return maxId === -Infinity ? 0 : maxId;
-  }
-
-  getNewTaskId() {
-    return this.root.maxId++;
-  }
-
-  *getRecursiveNodeIterator(root) {
-    root = root === undefined ? this.root : root
-    for (let node of root.tasks)
-    {
-      yield node;
-      if (Array.isArray(node.tasks)) {
-        yield* this.getRecursiveNodeIterator(node);
-      }
-    }
-  }
-
-  getNodeById(id) {
-    if (id === undefined) {
-      return this.root;
-    }
-
-    for (let node of this.getRecursiveNodeIterator()) {
-      if (node.id == id) {
-        return node;
-      }
-    }
-  }
-
-  getRawData() {
-    return this.root;
-  }
-
-  setRawData(data) {
-    this.root = data;
-  }
-
-  addTask(task) {
-    let node = this.getNodeById(task.parentId);
-    task.id = this.getNewTaskId();
-    task.completed = false;
-    task.tasks = []
-    node.tasks.push(task);
-  }
-
-  removeTask(id, parentId) {
-    let task = this.getNodeById(id)
-    if (!Array.isArray(task.tasks) || task.tasks.length === 0) {
-      let parent = this.getNodeById(parentId);
-      parent.tasks = parent.tasks.filter(child => child.id != id)
-    }
-  }
-
-  changeTask(id, data) {
-    let task = this.getNodeById(id);
-    Object.assign(task, data)
-  }
-
-  toggleCompleteTask(id) {
-    let task = this.getNodeById(id);
-    task.completed = !task.completed;
-  }
-}
-
 const store = new Vuex.Store({
   strict: true,
-  state: { tree: new TaskTree([]) },
+  state: { tree: TaskTree.loadFromLocalStorage('tasktree') },
   getters: {
-    getRootNodeRawData: (state) => () => {
-      return state.tree.getRawData()
+    getRootNode: (state) => () => {
+      return state.tree.getRootNode()
     },
     getTaskTree : (state) => () => {
       return state.tree;
     },
   },
   mutations: {
-    addTask (state, task) {
-      state.tree.addTask(task);
+    addTask (state, args) {
+      state.tree.addTask(args.parent, args.data);
     },
-    removeTask (state, task) {
-      state.tree.removeTask(task.id, task.parentId);
+    removeTask (state, node) {
+      node.getParent().removeChildNode(node);
     },
-    changeTask(state, task) {
-      state.tree.changeTask(task.id, task);
+    changeTask(state, args) {
+      args.node.setData(args.data);
     },
     setTaskTree(state, tree) {
       state.tree = tree;
     },
-    toggleCompleteTask(state, id) {
-      state.tree.toggleCompleteTask(id)
+    toggleCompleteTask(state, node) {
+      node.toggleComplete();
     }
   }
 });
-
-let rawData = JSON.parse(localStorage.getItem('tasktree'));
-let taskTree = new TaskTree([])
-if (rawData !== null) {
-  taskTree.setRawData(rawData)
-}
-store.commit('setTaskTree', taskTree);
 
 new Vue({
   render: h => h(App),

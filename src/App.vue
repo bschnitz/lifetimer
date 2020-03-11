@@ -18,13 +18,12 @@ export default {
   },
   computed: {
     rootData() {
-      return this.$store.getters.getRootNodeRawData();
+      return this.$store.getters.getRootNode();
     }
   },
   created() {
     this.$store.subscribe((mutation, state) => {
-      let tree = state.tree;
-      localStorage.setItem('tasktree', JSON.stringify(tree.getRawData()));
+      state.tree.saveToLocalStorage('tasktree');
     })
   },
   methods: {
