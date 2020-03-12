@@ -96,7 +96,7 @@ export default {
           taskRow.hideSubtree()
           break;
         case 'toggleCompleteTask':
-          taskRow.toggleCompleteTask(taskRow.task.id)
+          taskRow.toggleCompleteTask(taskRow.node)
           break;
       }
     },

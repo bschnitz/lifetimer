@@ -85,8 +85,8 @@ export class TaskNode {
   }
 
   toggleComplete() {
-    if (this.data.status !== TaskStatusEnum.complete) {
-      this.data.status = TaskStatusEnum.complete;
+    if (this.data.status !== TaskStatusEnum.completed) {
+      this.data.status = TaskStatusEnum.completed;
     }
     else {
       this.data.status = TaskStatusEnum.open;
