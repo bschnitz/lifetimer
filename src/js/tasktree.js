@@ -7,12 +7,19 @@ export const TaskStatusEnum = Object.freeze({
 export class TaskNode {
   constructor (id=null, parent=null, data={}) {
     this.data = {
-      id:     id,
-      parent: parent,
-      tasks:  [],
+      id:        id,
+      parent:    parent,
+      tasks:     [],
+      status:    undefined,
+      text:      undefined,
+      timeStart: undefined
     };
 
     this.setData(data);
+  }
+
+  getData () {
+    return this.data;
   }
 
   getRawDataCopy () {

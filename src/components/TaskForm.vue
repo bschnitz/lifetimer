@@ -38,11 +38,13 @@ export default {
         focusNext:          ['ctrl', 'j'],
         focusPrevious:      ['ctrl', 'k'],
         toggleForm:         ['ctrl', 'n'],
+        toggleFormAlt:      ['esc'],
       };
     },
     handleShortkey (event) {
       switch (event.srcKey) {
         case 'toggleForm':
+        case 'toggleFormAlt':
           this.$emit('toggleForm');
           break;
       }

@@ -46,7 +46,7 @@ export default {
         focusPrevious:      ['ctrl', 'k'],
         unfoldSubtree:      ['ctrl', 'l'],
         foldSubtree:        ['ctrl', 'h'],
-        toggleForm:         ['ctrl', 'n'],
+        toggleForm:         ['ctrl', 'm'],
         toggleCompleteTask: ['enter'],
       };
     },

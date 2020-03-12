@@ -29,20 +29,20 @@ const store = new Vuex.Store({
       if (!node.hasId()) {
         state.tree.addTask(parent, data);
       }
-      else if (data.text === "") {
+      else if (data.text === "" && !node.hasChilds()) {
         parent.removeChildNode(node);
       }
       else {
         node.setData(data);
       }
+    },
+    toggleCompleteTask(state, node) {
+      node.toggleComplete();
     }
   },
   setTaskTree(state, tree) {
     state.tree = tree;
   },
-  toggleCompleteTask(state, node) {
-    node.toggleComplete();
-  }
 });
 
 new Vue({

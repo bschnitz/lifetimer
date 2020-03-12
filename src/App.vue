@@ -57,3 +57,9 @@ button#backup {
   margin-right: 1em;
 }
 </style>
+
+<style>
+button, input {
+  margin: 0;
+}
+</style>
