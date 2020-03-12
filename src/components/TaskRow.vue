@@ -42,34 +42,30 @@ export default {
   methods: {
     getShortkeys () {
       return {
-        focusNext:     ['ctrl', 'j'],
-        focusPrevious: ['ctrl', 'k'],
-        unfoldSubtree: ['ctrl', 'l'],
-        foldSubtree:   ['ctrl', 'h'],
-        toggleCompleteTask:  ['enter'],
+        focusNext:          ['ctrl', 'j'],
+        focusPrevious:      ['ctrl', 'k'],
+        unfoldSubtree:      ['ctrl', 'l'],
+        foldSubtree:        ['ctrl', 'h'],
+        toggleForm:         ['ctrl', 'n'],
+        toggleCompleteTask: ['enter'],
       };
     },
     ...mapMutations([
       'changeTask',
-      'removeTask',
-      'addTask',
       'toggleCompleteTask',
     ]),
     onFocus () {
       this.root.saveFocusedTaskRow(this);
     },
     onInput (e) {
-      let text = e.target.value
+      this.changeTask({
+        node: this.node,
+        parent: this.parent,
+        data: {text: e.target.value}
+      });
 
       if (!this.node.hasId()) {
-        this.addTask({parent: this.parent, data: {text: text}})
         this.$refs['text'].value = ''
-      }
-      else if (text === "") {
-        this.removeTask(this.node);
-      }
-      else {
-        this.changeTask({node: this.node, data: {text: text}});
       }
     },
     focus () {
@@ -90,13 +86,16 @@ export default {
           this.root.focusPreviousTaskRow();
           break;
         case 'unfoldSubtree':
-          taskRow.showSubtree()
+          taskRow.showSubtree();
           break;
         case 'foldSubtree':
-          taskRow.hideSubtree()
+          taskRow.hideSubtree();
           break;
         case 'toggleCompleteTask':
-          taskRow.toggleCompleteTask(taskRow.node)
+          taskRow.toggleCompleteTask(taskRow.node);
+          break;
+        case 'toggleForm':
+          this.root.toggleForm();
           break;
       }
     },

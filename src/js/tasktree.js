@@ -4,15 +4,6 @@ export const TaskStatusEnum = Object.freeze({
   rejected:  4
 })
 
-function init(object, key, choices) {
-  for (let choice of choices) {
-    if (choice !== undefined) {
-      object[key] = choice;
-      return;
-    }
-  }
-}
-
 export class TaskNode {
   constructor (id=null, parent=null, data={}) {
     this.data = {
@@ -78,10 +69,19 @@ export class TaskNode {
     return this.getId() === task.getId();
   }
 
+  setField (fieldName, newValue, fallback) {
+    if (newValue !== undefined) {
+      this.data[fieldName] = newValue;
+    }
+    else if (this.data[fieldName === undefined] && fallback !== undefined) {
+      this.data[fieldName] = fallback;
+    }
+  }
+
   setData (data) {
-    let statusInit = [data.status, this.data.status, TaskStatusEnum.open];
-    init(this.data, 'status', statusInit)
-    init(this.data, 'text', [data.text, this.data.text, ''])
+    this.setField('status',    data.status,   TaskStatusEnum.open);
+    this.setField('text',      data.text,     '');
+    this.setField('timeStart', data.timeStart);
   }
 
   toggleComplete() {

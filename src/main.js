@@ -21,21 +21,27 @@ const store = new Vuex.Store({
     },
   },
   mutations: {
-    addTask (state, args) {
-      state.tree.addTask(args.parent, args.data);
-    },
-    removeTask (state, node) {
-      node.getParent().removeChildNode(node);
-    },
-    changeTask(state, args) {
-      args.node.setData(args.data);
-    },
-    setTaskTree(state, tree) {
-      state.tree = tree;
-    },
-    toggleCompleteTask(state, node) {
-      node.toggleComplete();
+    changeTask(state, payload) {
+      let node   = payload.node;
+      let parent = payload.parent;
+      let data   = payload.data;
+
+      if (!node.hasId()) {
+        state.tree.addTask(parent, data);
+      }
+      else if (data.text === "") {
+        parent.removeChildNode(node);
+      }
+      else {
+        node.setData(data);
+      }
     }
+  },
+  setTaskTree(state, tree) {
+    state.tree = tree;
+  },
+  toggleCompleteTask(state, node) {
+    node.toggleComplete();
   }
 });
 

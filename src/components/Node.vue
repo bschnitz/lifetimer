@@ -1,5 +1,10 @@
 <template>
   <div>
+    <TaskForm
+      v-if='showForm'
+      @toggleForm="toggleForm"
+      :parent="focusedTaskRow.parent"
+      :node="focusedTaskRow.node" />
     <TaskRow ref=task v-if="!this.isRoot()" :node=node />
     <ul v-if="this.showSubtree" :class="{subtree: !this.isRoot()}">
       <li v-for="(child, index) in node.getChildNodes()" :key="child.getId()">
@@ -12,6 +17,7 @@
 
 <script>
 import TaskRow from './TaskRow.vue'
+import TaskForm from './TaskForm.vue'
 
 export default {
   name: 'Node',
@@ -26,12 +32,14 @@ export default {
     }
   },
   components: {
-    TaskRow
+    TaskRow,
+    TaskForm,
   },
   data () {
     return {
       focusedTaskRow: undefined,
-      showSubtree: this.isRoot()
+      showSubtree: this.isRoot(),
+      showForm: false
     }
   },
   methods: {
@@ -60,6 +68,12 @@ export default {
         this.$nextTick(function(){
           this.$parent.focus(this.index);
         })
+      }
+    },
+    toggleForm () {
+      this.showForm = !this.showForm;
+      if (!this.showForm) {
+        this.focusedTaskRow.focus();
       }
     },
     focusNewTaskRow (id, row) {
