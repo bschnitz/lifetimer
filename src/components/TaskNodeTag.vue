@@ -8,7 +8,7 @@
     <TaskRow ref=task v-if="!this.isRoot()" :node=node />
     <ul v-if="this.showSubtree" :class="{subtree: !this.isRoot()}">
       <li v-for="(child, index) in node.getChildNodes()" :key="child.getId()">
-        <Node :node=child :index=index :ref=index />
+        <TaskNodeTag :node=child :index=index :ref=index />
       </li>
       <li><TaskRow :parent=node ref=addTask /></li>
     </ul>
@@ -18,12 +18,13 @@
 <script>
 import TaskRow from './TaskRow.vue'
 import TaskForm from './TaskForm.vue'
+import TaskNode from '../js/tasktree.js'
 
 export default {
-  name: 'Node',
+  name: 'TaskNodeTag',
   props: {
     node: {
-      type: Object, // TaskNode
+      type: TaskNode,
       required: true
     },
     index: {

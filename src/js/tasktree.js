@@ -12,7 +12,9 @@ export class TaskNode {
       tasks:     [],
       status:    undefined,
       text:      undefined,
-      timeStart: undefined
+      timeStart: undefined,
+      timeEnd:   undefined,
+      deadline:  undefined
     };
 
     this.setData(data);

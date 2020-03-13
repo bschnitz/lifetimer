@@ -3,18 +3,18 @@
     <button id="backup" tabindex='-1' @click="backupTasks">
       Backup all Tasks
     </button>
-    <Node class="root" :node=rootData />
+    <TaskNodeTag class="root" :node=rootData />
   </div>
 </template>
 
 <script>
-import Node from './components/Node.vue'
+import TaskNodeTag from './components/TaskNodeTag.vue'
 
 
 export default {
   name: 'App',
   components: {
-    Node
+    TaskNodeTag
   },
   computed: {
     rootData() {
