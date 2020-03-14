@@ -20,6 +20,10 @@ export class TaskNode {
     this.setData(data);
   }
 
+  getFieldValue (field) {
+    return this.data[field];
+  }
+
   getData () {
     return this.data;
   }

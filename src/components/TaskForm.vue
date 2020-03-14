@@ -1,20 +1,20 @@
 <template>
   <div class='wrapper'>
     <div class='form'>
-      <input
-        ref="text"
-        type='text'
-        :value="this.node.getText()"
-        v-shortkey="getShortkeys()"
-        @input="onInput"
+      <TaskInputField
+        ref=text
+        :node=node
+        :parent=parent
+        field=text
+        :shortkeys="shortkeys"
         @shortkey="handleShortkey" />
     </div>
   </div>
 </template>
 
 <script>
+import TaskInputField from './TaskInputField.vue'
 import { TaskNode } from '../js/tasktree.js'
-import { mapMutations } from 'vuex'
 
 export default {
   name: 'TaskForm',
@@ -29,18 +29,10 @@ export default {
       default () { return this.node.getParent(); }
     }
   },
+  components: {
+    TaskInputField
+  },
   methods: {
-    ...mapMutations([
-      'changeTask',
-    ]),
-    getShortkeys () {
-      return {
-        focusNext:          ['ctrl', 'j'],
-        focusPrevious:      ['ctrl', 'k'],
-        toggleForm:         ['ctrl', 'n'],
-        toggleFormAlt:      ['esc'],
-      };
-    },
     handleShortkey (event) {
       switch (event.srcKey) {
         case 'toggleForm':
@@ -52,13 +44,16 @@ export default {
     focus () {
       this.$refs['text'].focus()
     },
-    onInput (e) {
-      this.changeTask({
-        node: this.node,
-        parent: this.parent,
-        data: {text: e.target.value}
-      });
-    },
+  },
+  computed: {
+    shortkeys () {
+      return {
+        focusNext:          ['ctrl', 'j'],
+        focusPrevious:      ['ctrl', 'k'],
+        toggleForm:         ['ctrl', 'm'],
+        toggleFormAlt:      ['esc'],
+      };
+    }
   },
   mounted() {
     this.focus()
