@@ -4,7 +4,7 @@
     type='text'
     :value="this.value"
     v-shortkey="shortkeys"
-    @shortkey=onShortkey
+    @shortkey=bus.$emit($event.srcKey)
     @input="onInput" />
 </template>
 
@@ -30,7 +30,7 @@ export default {
     },
     shortkeys: {}
   },
-  inject: ['bus'],
+  inject: ['bus', 'shortkeys'],
   methods: {
     onInput (e) {
       this.bus.$emit('changeTask', {
@@ -46,9 +46,6 @@ export default {
     focus () {
       this.$refs['input'].focus()
     },
-    onShortkey (event) {
-      this.$emit('shortkey', event);
-    }
   },
   computed: {
     value () {

@@ -5,9 +5,7 @@
         ref=text
         :node=node
         :parent=parent
-        field=text
-        :shortkeys="shortkeys"
-        @shortkey="handleShortkey" />
+        field=text />
     </div>
   </div>
 </template>
@@ -33,27 +31,9 @@ export default {
     TaskInputField
   },
   methods: {
-    handleShortkey (event) {
-      switch (event.srcKey) {
-        case 'toggleForm':
-        case 'toggleFormAlt':
-          this.$emit('toggleForm');
-          break;
-      }
-    },
     focus () {
       this.$refs['text'].focus()
     },
-  },
-  computed: {
-    shortkeys () {
-      return {
-        focusNext:          ['ctrl', 'j'],
-        focusPrevious:      ['ctrl', 'k'],
-        toggleForm:         ['ctrl', 'm'],
-        toggleFormAlt:      ['esc'],
-      };
-    }
   },
   mounted() {
     this.focus()

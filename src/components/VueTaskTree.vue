@@ -8,7 +8,7 @@
       @toggleForm="toggleForm"
       :parent="focusedTaskRow.parent"
       :node="focusedTaskRow.node" />
-    <VueTaskNode class="root" :node=rootData />
+    <VueTaskNode class="root" :node="this.tree.getRootNode()" />
   </div>
 </template>
 
@@ -31,36 +31,21 @@ export default {
   },
   provide () {
     return {
-      bus: this.bus
+      bus: this.bus,
+      shortkeys: this.shortkeys
     }
   },
   components: {
     VueTaskNode,
     TaskForm,
   },
-  computed: {
-    rootData() {
-      return this.tree.getRootNode();
-    }
-  },
   created() {
+    this.bus.$on('changeTask',  (data) => {this.changeTask(data);});
     this.bus.$on('focusedTaskRow', (taskRow) => {
       this.focusedTaskRow = taskRow;
     });
 
-    this.bus.$on('toggleCompleteTask', () => {
-      this.toggleCompleteTask(this.focusedTaskRow.node);
-    });
-    this.bus.$on('changeTask',  (data) => {
-      this.changeTask(data);
-    });
-
-    this.bus.$on('setFocusToNextTaskRow',     this.focusNextTaskRow);
-    this.bus.$on('setFocusToPreviousTaskRow', this.focusPreviousTaskRow);
-    this.bus.$on('toggleForm',                this.toggleForm);
-
-    this.bus.$on('showSubtree', () => {this.focusedTaskRow.showSubtree()});
-    this.bus.$on('hideSubtree', () => {this.focusedTaskRow.hideSubtree()});
+    this.registerShortkeys();
   },
   methods: {
     changeTask (payload) {
@@ -80,8 +65,8 @@ export default {
 
       this.tree.saveToLocalStorage('tasktree');
     },
-    toggleCompleteTask(node) {
-      node.toggleComplete();
+    toggleCompleteTask() {
+      this.focusedTaskRow.node.toggleComplete();
       this.tree.saveToLocalStorage('tasktree');
     },
     focusNextTaskRow () {
@@ -115,6 +100,7 @@ export default {
       if (!this.showForm) {
         this.focusedTaskRow.focus();
       }
+      this.registerShortkeys();
     },
     backupTasks () {
       let FileSaver = require('file-saver');
@@ -122,6 +108,40 @@ export default {
       let blob = new Blob([json], {type: "text/plain;charset=utf-8"});
       FileSaver.saveAs(blob, "task-backup.json");
     },
+    registerShortkeys () {
+      this.bus.$off('SHORTKEY_C_M');
+      this.bus.$off('SHORTKEY_C_J');
+      this.bus.$off('SHORTKEY_C_K');
+      this.bus.$off('SHORTKEY_C_L');
+      this.bus.$off('SHORTKEY_C_H');
+      this.bus.$off('SHORTKEY_ESC');
+      this.bus.$off('SHORTKEY_C_ENTER');
+
+      this.bus.$on('SHORTKEY_C_M', this.toggleForm);
+      this.bus.$on('SHORTKEY_ENTER', () => {this.toggleCompleteTask()});
+      if (this.showForm) {
+        this.bus.$on('SHORTKEY_ESC', this.toggleForm);
+      }
+      else {
+        this.bus.$on('SHORTKEY_C_J',     this.focusNextTaskRow);
+        this.bus.$on('SHORTKEY_C_K', this.focusPreviousTaskRow);
+        this.bus.$on('SHORTKEY_C_L', () => {this.focusedTaskRow.showSubtree()});
+        this.bus.$on('SHORTKEY_C_H', () => {this.focusedTaskRow.hideSubtree()});
+      }
+    }
+  },
+  computed: {
+    shortkeys () {
+      return {
+        SHORTKEY_C_J:   ['ctrl', 'j'],
+        SHORTKEY_C_K:   ['ctrl', 'k'],
+        SHORTKEY_C_L:   ['ctrl', 'l'],
+        SHORTKEY_C_H:   ['ctrl', 'h'],
+        SHORTKEY_C_M:   ['ctrl', 'm'],
+        SHORTKEY_ESC:   ['esc'],
+        SHORTKEY_ENTER: ['enter'],
+      }
+    }
   }
 }
 </script>

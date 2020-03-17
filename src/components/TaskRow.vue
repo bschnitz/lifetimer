@@ -11,7 +11,7 @@
         :value="this.node.getText()"
         @input="onInput"
         @focus="onFocus"
-        v-shortkey="getShortkeys()"
+        v-shortkey="shortkeys"
         @shortkey="bus.$emit($event.srcKey)"
         />
       <button type="submit" @click="showSubtree">
@@ -37,20 +37,10 @@ export default {
       type: TaskNode,
       required: false,
       default () { return this.node.getParent(); }
-    }
-  },
-  inject: ['bus'],
-  methods: {
-    getShortkeys () {
-      return {
-        setFocusToNextTaskRow:     ['ctrl', 'j'],
-        setFocusToPreviousTaskRow: ['ctrl', 'k'],
-        showSubtree:               ['ctrl', 'l'],
-        hideSubtree:               ['ctrl', 'h'],
-        toggleForm:                ['ctrl', 'm'],
-        toggleCompleteTask:        ['enter'],
-      };
     },
+  },
+  inject: ['bus', 'shortkeys'],
+  methods: {
     onFocus () {
       this.bus.$emit('focusedTaskRow', this);
     },
@@ -107,7 +97,7 @@ export default {
         'completed':        this.node.getStatus() === TaskStatusEnum.completed,
         'rejected':         this.node.getStatus() === TaskStatusEnum.rejected,
       }
-    }
+    },
   },
   mounted() {
     this.focus()
