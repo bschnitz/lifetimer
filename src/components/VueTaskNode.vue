@@ -1,14 +1,9 @@
 <template>
   <div>
-    <TaskForm
-      v-if='showForm'
-      @toggleForm="toggleForm"
-      :parent="focusedTaskRow.parent"
-      :node="focusedTaskRow.node" />
     <TaskRow ref=task v-if="!this.isRoot()" :node=node />
     <ul v-if="this.showSubtree" :class="{subtree: !this.isRoot()}">
       <li v-for="(child, index) in node.getChildNodes()" :key="child.getId()">
-        <TaskNodeTag :node=child :index=index :ref=index />
+        <VueTaskNode :node=child :index=index :ref=index />
       </li>
       <li><TaskRow :parent=node ref=addTask /></li>
     </ul>
@@ -17,11 +12,10 @@
 
 <script>
 import TaskRow from './TaskRow.vue'
-import TaskForm from './TaskForm.vue'
-import TaskNode from '../js/tasktree.js'
+import {TaskNode} from '../js/tasktree.js'
 
 export default {
-  name: 'TaskNodeTag',
+  name: 'VueTaskNode',
   props: {
     node: {
       type: TaskNode,
@@ -34,13 +28,10 @@ export default {
   },
   components: {
     TaskRow,
-    TaskForm,
   },
   data () {
     return {
-      focusedTaskRow: undefined,
       showSubtree: this.isRoot(),
-      showForm: false
     }
   },
   methods: {
@@ -71,12 +62,6 @@ export default {
         })
       }
     },
-    toggleForm () {
-      this.showForm = !this.showForm;
-      if (!this.showForm) {
-        this.focusedTaskRow.focus();
-      }
-    },
     focusNewTaskRow (id, row) {
       if (id !== undefined) {
         row.focus()
@@ -89,7 +74,7 @@ export default {
       return this.root.focusedTaskRow
     },
     focusNextTaskRow () {
-      let inputs = document.getElementsByTagName("input");
+      let inputs = this.$el.querySelectorAll("input.task")
       let focusedInput = this.focusedTaskRow.getInputElement();
 
       for (let i = 0; i < inputs.length; i++) {
@@ -102,7 +87,7 @@ export default {
       }
     },
     focusPreviousTaskRow () {
-      let inputs = document.getElementsByTagName("input");
+      let inputs = this.$el.querySelectorAll("input.task")
       let focusedInput = this.focusedTaskRow.getInputElement();
 
       for (let i = 0; i < inputs.length; i++) {

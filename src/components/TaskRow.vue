@@ -7,11 +7,12 @@
       <input
         ref="text"
         type='text'
+        class='task'
         :value="this.node.getText()"
         @input="onInput"
         @focus="onFocus"
         v-shortkey="getShortkeys()"
-        @shortkey="handleShortkey"
+        @shortkey="bus.$emit($event.srcKey)"
         />
       <button type="submit" @click="showSubtree">
         {{countSubtasks}}
@@ -22,7 +23,6 @@
 </template>
 
 <script>
-import { mapMutations } from 'vuex'
 import { TaskNode, TaskStatusEnum } from '../js/tasktree.js'
 
 export default {
@@ -39,29 +39,26 @@ export default {
       default () { return this.node.getParent(); }
     }
   },
+  inject: ['bus'],
   methods: {
     getShortkeys () {
       return {
-        focusNext:          ['ctrl', 'j'],
-        focusPrevious:      ['ctrl', 'k'],
-        unfoldSubtree:      ['ctrl', 'l'],
-        foldSubtree:        ['ctrl', 'h'],
-        toggleForm:         ['ctrl', 'm'],
-        toggleCompleteTask: ['enter'],
+        setFocusToNextTaskRow:     ['ctrl', 'j'],
+        setFocusToPreviousTaskRow: ['ctrl', 'k'],
+        showSubtree:               ['ctrl', 'l'],
+        hideSubtree:               ['ctrl', 'h'],
+        toggleForm:                ['ctrl', 'm'],
+        toggleCompleteTask:        ['enter'],
       };
     },
-    ...mapMutations([
-      'changeTask',
-      'toggleCompleteTask',
-    ]),
     onFocus () {
-      this.root.saveFocusedTaskRow(this);
+      this.bus.$emit('focusedTaskRow', this);
     },
     onInput (e) {
-      this.changeTask({
-        node: this.node,
+      this.bus.$emit('changeTask', {
+        node:   this.node,
         parent: this.parent,
-        data: {text: e.target.value}
+        data:   {text: e.target.value}
       });
 
       if (!this.node.hasId()) {
@@ -73,31 +70,6 @@ export default {
     },
     getInputElement () {
       return this.$refs['text'];
-    },
-    handleShortkey (event) {
-      // the shortkey works globally, but is bound to an arbitrary TaskRow. This
-      // is why the focused TaskRow must be determined and used
-      let taskRow = this.root.getFocusedTaskRow();
-      switch (event.srcKey) {
-        case 'focusNext':
-          this.root.focusNextTaskRow();
-          break;
-        case 'focusPrevious':
-          this.root.focusPreviousTaskRow();
-          break;
-        case 'unfoldSubtree':
-          taskRow.showSubtree();
-          break;
-        case 'foldSubtree':
-          taskRow.hideSubtree();
-          break;
-        case 'toggleCompleteTask':
-          taskRow.toggleCompleteTask(taskRow.node);
-          break;
-        case 'toggleForm':
-          this.root.toggleForm();
-          break;
-      }
     },
     showSubtree () {
       if (this.node.hasId()) {

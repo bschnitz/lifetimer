@@ -9,7 +9,6 @@
 </template>
 
 <script>
-import { mapMutations } from 'vuex'
 import { TaskNode } from '../js/tasktree.js'
 
 export default {
@@ -31,21 +30,17 @@ export default {
     },
     shortkeys: {}
   },
+  inject: ['bus'],
   methods: {
-    ...mapMutations([
-      'changeTask',
-    ]),
     onInput (e) {
-      let data = {};
-      data[this.field] = e.target.value;
-      this.changeTask({
-        node: this.node,
+      this.bus.$emit('changeTask', {
+        node:   this.node,
         parent: this.parent,
-        data: data
+        data:   {text: e.target.value}
       });
 
       if (!this.node.hasId()) {
-        this.$refs['input'].value = ''
+        this.$refs['text'].value = ''
       }
     },
     focus () {
