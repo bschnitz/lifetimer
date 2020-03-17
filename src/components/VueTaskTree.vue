@@ -14,7 +14,7 @@
 
 <script>
 import Vue from 'vue';
-import { mapMutations } from 'vuex'
+import { TaskTree } from '../js/tasktree.js'
 
 import TaskForm from './TaskForm.vue'
 import VueTaskNode from './VueTaskNode.vue'
@@ -26,6 +26,7 @@ export default {
       bus:            new Vue(),
       focusedTaskRow: undefined,
       showForm:       false,
+      tree:           TaskTree.loadFromLocalStorage('tasktree')
     }
   },
   provide () {
@@ -39,14 +40,10 @@ export default {
   },
   computed: {
     rootData() {
-      return this.$store.getters.getRootNode();
+      return this.tree.getRootNode();
     }
   },
   created() {
-    this.$store.subscribe((mutation, state) => {
-      state.tree.saveToLocalStorage('tasktree');
-    });
-
     this.bus.$on('focusedTaskRow', (taskRow) => {
       this.focusedTaskRow = taskRow;
     });
@@ -66,10 +63,27 @@ export default {
     this.bus.$on('hideSubtree', () => {this.focusedTaskRow.hideSubtree()});
   },
   methods: {
-    ...mapMutations([
-      'changeTask',
-      'toggleCompleteTask',
-    ]),
+    changeTask (payload) {
+      let node   = payload.node;
+      let parent = payload.parent;
+      let data   = payload.data;
+
+      if (!node.hasId()) {
+        this.tree.addTask(parent, data);
+      }
+      else if (data.text === "" && !node.hasChilds()) {
+        parent.removeChildNode(node);
+      }
+      else {
+        node.setData(data);
+      }
+
+      this.tree.saveToLocalStorage('tasktree');
+    },
+    toggleCompleteTask(node) {
+      node.toggleComplete();
+      this.tree.saveToLocalStorage('tasktree');
+    },
     focusNextTaskRow () {
       let inputs = this.$el.querySelectorAll("input.task")
       let focusedInput = this.focusedTaskRow.getInputElement();
@@ -104,8 +118,7 @@ export default {
     },
     backupTasks () {
       let FileSaver = require('file-saver');
-      let tree = this.$store.state.tree;
-      let json = JSON.stringify(tree.getRawDataCopy())
+      let json = JSON.stringify(this.tree.getRawDataCopy())
       let blob = new Blob([json], {type: "text/plain;charset=utf-8"});
       FileSaver.saveAs(blob, "task-backup.json");
     },

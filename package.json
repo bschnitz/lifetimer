@@ -11,8 +11,7 @@
     "core-js": "^3.6.4",
     "file-saver": "^2.0.2",
     "vue": "^2.6.11",
-    "vue-shortkey": "^3.1.7",
-    "vuex": "^3.1.2"
+    "vue-shortkey": "^3.1.7"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "~4.2.0",
