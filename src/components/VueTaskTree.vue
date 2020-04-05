@@ -108,7 +108,13 @@ export default {
       let blob = new Blob([json], {type: "text/plain;charset=utf-8"});
       FileSaver.saveAs(blob, "task-backup.json");
     },
-    registerShortkeys () {
+    showSubtreeAtFocus () {
+      this.focusedTaskRow.showSubtree();
+    },
+    hideSubtreeAtFocus () {
+      this.focusedTaskRow.hideSubtree();
+    },
+    unregisterShortkeys () {
       this.bus.$off('SHORTKEY_C_M');
       this.bus.$off('SHORTKEY_C_J');
       this.bus.$off('SHORTKEY_C_K');
@@ -116,17 +122,20 @@ export default {
       this.bus.$off('SHORTKEY_C_H');
       this.bus.$off('SHORTKEY_ESC');
       this.bus.$off('SHORTKEY_C_ENTER');
+    },
+    registerShortkeys () {
+      this.unregisterShortkeys();
 
-      this.bus.$on('SHORTKEY_C_M', this.toggleForm);
-      this.bus.$on('SHORTKEY_ENTER', () => {this.toggleCompleteTask()});
+      this.bus.$on('SHORTKEY_C_M',   this.toggleForm);
+      this.bus.$on('SHORTKEY_ENTER', this.toggleCompleteTask);
       if (this.showForm) {
         this.bus.$on('SHORTKEY_ESC', this.toggleForm);
       }
       else {
-        this.bus.$on('SHORTKEY_C_J',     this.focusNextTaskRow);
+        this.bus.$on('SHORTKEY_C_J', this.focusNextTaskRow);
         this.bus.$on('SHORTKEY_C_K', this.focusPreviousTaskRow);
-        this.bus.$on('SHORTKEY_C_L', () => {this.focusedTaskRow.showSubtree()});
-        this.bus.$on('SHORTKEY_C_H', () => {this.focusedTaskRow.hideSubtree()});
+        this.bus.$on('SHORTKEY_C_L', this.showSubtreeAtFocus);
+        this.bus.$on('SHORTKEY_C_H', this.hideSubtreeAtFocus);
       }
     }
   },
